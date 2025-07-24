@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Downloader</title>
+  <style>
+    body { background: #18181b; color: #fff; font-family: sans-serif; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .container { width: 100%; max-width: 400px; background: #27272a; border-radius: 12px; box-shadow: 0 2px 8px #0003; padding: 1.5rem; margin: 1rem; }
+    h1 { text-align: center; font-size: 2rem; margin-bottom: 1rem; }
+    input[type="text"] { width: 100%; padding: 0.75rem; border-radius: 6px; border: none; margin-bottom: 1rem; font-size: 1rem; }
+    button { width: 100%; padding: 0.75rem; border-radius: 6px; border: none; background: #2563eb; color: #fff; font-size: 1rem; font-weight: bold; margin-bottom: 1rem; }
+    button:active { background: #1d4ed8; }
+    .result { background: #18181b; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }
+    .result-title { font-size: 1rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .result-channel { font-size: 0.9rem; color: #a1a1aa; }
+    .download-link { background: #22c55e; color: #fff; padding: 0.5rem 0.75rem; border-radius: 6px; text-align: center; text-decoration: none; font-size: 0.95rem; font-weight: 500; margin-top: 0.5rem; }
+    .download-link:active { background: #16a34a; }
+    @media (max-width: 500px) {
+      .container { padding: 1rem; }
+      h1 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎵 Music Downloader</h1>
+    <input id="searchInput" type="text" placeholder="Search for a song..." />
+    <button onclick="searchSong()">Search</button>
+    <div id="results"></div>
+  </div>
+  <script>
+    async function searchSong() {
+      const query = document.getElementById('searchInput').value;
+      if (!query) return;
+      const res = await fetch(`/search?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '';
+      if (!data.results || !data.results.length) {
+        resultsDiv.innerHTML = '<div style="text-align:center;color:#a1a1aa;">No results found.</div>';
+        return;
+      }
+      data.results.forEach(video => {
+        const el = document.createElement('div');
+        el.className = 'result';
+        el.innerHTML = `
+          <div class="result-title">${video.title}</div>
+          <div class="result-channel">${video.channelTitle}</div>
+          <a href="/download?id=${video.videoId}" class="download-link">Download MP3</a>
+        `;
+        resultsDiv.appendChild(el);
+      });
+    }
+  </script>
+</body>
+</html> 
